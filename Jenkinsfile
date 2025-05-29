@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/username/repo-laravel-kamu.git'
+                git 'https://github.com/NurGhulam04/fp-pso.git'
             }
         }
 
