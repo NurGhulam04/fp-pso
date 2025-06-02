@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/NurGhulam04/fp-pso.git', branch: 'main'
+                git url: 'https://github.com/NurGhulam04/fp-pso.git', branch: 'update'
             }
         }
 
