@@ -20,7 +20,16 @@ pipeline {
                 withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE')]) {
                     sh '''
                         echo "Logging in to Azure using publish profile..."
+                        az webapp deployment container config \
+                        --name "$WEBAPP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
+                        --enable-cd true
 
+                        az webapp config container set \
+                        --name "$WEBAPP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
+                        --docker-custom-image-name "$DOCKER_IMAGE:$DOCKER_TAG" \
+                        --docker-registry-server-url "$REGISTRY_URL"
 
                         echo "Deploying Docker image to Azure Web App..."
                         az webapp config container set \
