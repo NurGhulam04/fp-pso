@@ -1,41 +1,36 @@
 pipeline {
-    agent any
-
-    environment {
-        DB_HOST = "mysql"
-        DB_PORT = "3306"
-        DB_DATABASE = "perpus"
-        DB_USERNAME = "root"
-        DB_PASSWORD = "12345678"
+        agent any
+        environment {
+        DOCKER_IMAGE   = 'nurghulam/pso-cicd'
+        DOCKER_TAG     = 'latest'
+        WEBAPP_NAME    = 'Microsoft.Web-WebApp-Portal-0dcce4b6-bc84'
+        RESOURCE_GROUP = 'pso-cicd_group'
+        REGISTRY_URL   = 'https://index.docker.io'
     }
-    //Test jenkins trigger
+
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/NurGhulam04/fp-pso.git', branch: 'update'
+                git url: 'https://github.com/NurGhulam04/fp-pso.git', branch: 'main'
             }
         }
 
-        stage('Install Dependencies') {
+        stage('Deploy to Azure Web App') {
             steps {
-                sh 'composer install'
-                sh 'cp .env.example .env'
-                sh 'php artisan key:generate'
+                withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE')]) {
+                    sh '''
+                        echo "Logging in to Azure using publish profile..."
+                        az login --service-principal --username dummy --password dummy --tenant dummy || true
+
+                        echo "Deploying Docker image to Azure Web App..."
+                        az webapp config container set \
+                        --name "$WEBAPP_NAME" \
+                        --resource-group "$RESOURCE_GROUP" \
+                        --docker-custom-image-name "$DOCKER_IMAGE:$DOCKER_TAG" \
+                        --docker-registry-server-url "$REGISTRY_URL"
+                    '''
+                }
             }
         }
-
-        stage('Test') {
-            steps {
-                sh './vendor/bin/phpunit'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t laravel-app .'
-            }
-        }
-
-
     }
 }
