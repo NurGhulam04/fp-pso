@@ -20,7 +20,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE')]) {
                     sh '''
                         echo "Logging in to Azure using publish profile..."
-                        az login --service-principal --username dummy --password dummy --tenant dummy || true
+
 
                         echo "Deploying Docker image to Azure Web App..."
                         az webapp config container set \
