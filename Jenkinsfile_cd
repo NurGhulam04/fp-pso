@@ -75,7 +75,7 @@ pipeline {
                             # Endpoint API adalah /api/webconfig untuk properti situs atau /config/web untuk pengaturan aplikasi.
                             # Untuk konfigurasi Linux container, ini biasanya diatur melalui /config/web atau /api/siteconfig.
                             # Menggunakan /config/web:
-                            curl -X PUT "https://$SITE_HOSTNAME/api/webconfig?api-version=2022-03-01" \
+                            curl -X PUT "https://$SITE_HOSTNAME/api/webconfig?api-version=2016-08-01" \
                                 -u "$USERNAME:$PASSWORD" \
                                 -H "Content-Type: application/json" \
                                 -d '{
