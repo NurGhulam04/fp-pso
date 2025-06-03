@@ -56,7 +56,7 @@ RUN ln -s /etc/nginx/sites-available/default.conf /etc/nginx/sites-enabled/defau
 COPY supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 
 # Expose port (Azure will map external traffic to this port)
-EXPOSE 8000
+EXPOSE 80
 
 # Use Supervisor to run both services
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
