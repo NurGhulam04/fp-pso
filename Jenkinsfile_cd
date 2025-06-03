@@ -54,7 +54,7 @@ pipeline {
                             # Kita hanya butuh base URL https://<nama_app>.scm.azurewebsites.net
                             SITE_SCM_URL=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@publishUrl)" "$PUBLISH_PROFILE_PATH")
                             # Ekstrak hostname dari URL SCM
-                            SITE_HOSTNAME=$(echo "$SITE_SCM_URL" | sed -E 's/^(https?:\/\/)?([^/]+)\/?.*$/\2/')
+                            SITE_HOSTNAME=$(echo "$SITE_SCM_URL" | sed -E 's|^https?://([^/]+)/?.*$|\1|')
 
                             # Pastikan semua variabel tidak kosong
                             if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ] || [ -z "$SITE_HOSTNAME" ]; then
