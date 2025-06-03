@@ -3,7 +3,7 @@ pipeline {
         environment {
         DOCKER_IMAGE   = 'nurghulam/pso-cicd'
         DOCKER_TAG     = 'latest'
-        WEBAPP_NAME    = 'Microsoft.Web-WebApp-Portal-0dcce4b6-bc84'
+        WEBAPP_NAME    = 'PerpusKu'
         RESOURCE_GROUP = 'pso-cicd_group'
         REGISTRY_URL   = 'https://index.docker.io'
     }
@@ -15,28 +15,20 @@ pipeline {
             }
         }
 
-        stage('Deploy to Azure Web App') {
+       stage('Deploy to Azure Web App') {
             steps {
                 withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE')]) {
                     sh '''
-                        echo "Logging in to Azure using publish profile..."
-                        az webapp deployment container config \
-                        --name "$WEBAPP_NAME" \
-                        --resource-group "$RESOURCE_GROUP" \
-                        --enable-cd true
-
+                        echo "Authenticating with publish profile..."
                         az webapp config container set \
-                        --name "$WEBAPP_NAME" \
-                        --resource-group "$RESOURCE_GROUP" \
-                        --docker-custom-image-name "$DOCKER_IMAGE:$DOCKER_TAG" \
-                        --docker-registry-server-url "$REGISTRY_URL"
-
-                        echo "Deploying Docker image to Azure Web App..."
-                        az webapp config container set \
-                        --name "$WEBAPP_NAME" \
-                        --resource-group "$RESOURCE_GROUP" \
-                        --docker-custom-image-name "$DOCKER_IMAGE:$DOCKER_TAG" \
-                        --docker-registry-server-url "$REGISTRY_URL"
+                            --name "$WEBAPP_NAME" \
+                            --resource-group "$RESOURCE_GROUP" \
+                            --docker-custom-image-name "$DOCKER_IMAGE:$DOCKER_TAG" \
+                            --docker-registry-server-url "$REGISTRY_URL" \
+                            --slot-production \
+                            --subscription $(az account show --query id -o tsv) \
+                            --debug \
+                            --profile "$PUBLISH_PROFILE"
                     '''
                 }
             }
