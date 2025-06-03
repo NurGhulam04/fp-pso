@@ -60,3 +60,9 @@ EXPOSE 80
 
 # Use Supervisor to run both services
 CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
+
+# Di akhir Dockerfile:
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+
