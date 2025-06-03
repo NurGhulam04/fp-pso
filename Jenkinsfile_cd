@@ -92,8 +92,10 @@ pipeline {
 
                             # Opsional: Restart Web App untuk memastikan perubahan diterapkan segera
                             # Restart bisa dilakukan melalui API SCM juga
-                            curl -X POST "https://$SITE_HOSTNAME/api/appsettings/restart" \
-                                -u "$USERNAME:$PASSWORD"
+                            curl -X POST "https://$SITE_HOSTNAME/api/command" \
+                                -u "$USERNAME:$PASSWORD" \
+                                -H "Content-Type: application/json" \
+                                -d '{ "command": "restart" }'
 
                             if [ $? -ne 0 ]; then
                                 echo "PERINGATAN: Gagal merestart Web App. Perubahan mungkin memerlukan waktu untuk diterapkan."
