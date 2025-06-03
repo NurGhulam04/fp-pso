@@ -1,0 +1,111 @@
+pipeline {
+    agent any
+
+    environment {
+        // Pastikan variabel ini sesuai dengan nama image Docker dan tag yang Anda inginkan
+        DOCKER_IMAGE_NAME = 'nurghulam/pso-cicd' // Nama image Docker Anda
+        DOCKER_IMAGE_TAG  = 'latest'           // Tag image Docker Anda
+        AZURE_WEBAPP_NAME = 'perpusgul'         // Nama Azure Web App Anda
+    }
+
+    stages {
+        stage('Checkout Source Code') {
+            steps {
+                // Tahap ini mengunduh kode sumber Anda dari Git.
+                // Penting jika Dockerfile Anda ada di repo ini, atau jika Anda ingin menggunakan GIT_COMMIT sebagai tag image.
+                script {
+                    echo "Checking out source code from Git repository..."
+                    git url: 'https://github.com/NurGhulam04/fp-pso.git', branch: 'main'
+                    // Jika Anda ingin menggunakan commit SHA sebagai tag Docker, Anda bisa akses env.GIT_COMMIT di sini
+                    // Misalnya: DOCKER_IMAGE_TAG = env.GIT_COMMIT
+                }
+            }
+        }
+
+        stage('Deploy Docker Image via Publish Profile') {
+            steps {
+                script {
+                    echo "Starting deployment to Azure Web App '${env.AZURE_WEBAPP_NAME}' using Publish Profile..."
+
+                    // Menggunakan withCredentials untuk mengakses file publish profile yang disimpan di Jenkins
+                    // Pastikan Anda telah menyimpan publish profile Anda sebagai 'Secret file' di Jenkins Credentials
+                    // dengan ID 'azure-publish-profile'.
+                    withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE_PATH')]) {
+                        sh '''
+                            # Pastikan 'xmllint' terinstal di agen Jenkins Anda.
+                            # Anda mungkin perlu menginstal: sudo apt-get install libxml2-utils
+                            echo "Mengekstrak kredensial dari publish profile..."
+
+                            # Mengurai publish profile untuk mendapatkan informasi yang diperlukan
+                            # Kita mencari profile dengan publishMethod="MSDeploy" atau "MSDeployNonMSDeployData"
+                            # karena ini yang paling mungkin memiliki URL API manajemen yang relevan.
+                            # Publish profile FTP biasanya tidak digunakan untuk mengkonfigurasi properti aplikasi.
+                            # Sesuaikan XPath ini jika struktur XML publish profile Anda berbeda.
+                            # Untuk mendapatkan URL API manajemen, biasanya ada di publishUrl dari Web Deploy profile.
+                            # Atau, Anda bisa menggunakan userName/userPWD dari MSDeploy profile.
+
+                            # Mengambil userName dan userPWD dari publish profile dengan publishMethod="MSDeploy"
+                            # Ini adalah kredensial yang kemungkinan besar dapat digunakan untuk Azure Management API.
+                            # Jika tidak ada profile MSDeploy, Anda mungkin perlu mencari tipe lain.
+                            USERNAME=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userName)" "$PUBLISH_PROFILE_PATH")
+                            PASSWORD=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userPWD)" "$PUBLISH_PROFILE_PATH")
+
+                            # Mengambil base URL dari publishUrl. Biasanya dalam format https://<nama_app>.scm.azurewebsites.net/<path>
+                            # Kita hanya butuh base URL https://<nama_app>.scm.azurewebsites.net
+                            SITE_SCM_URL=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@publishUrl)" "$PUBLISH_PROFILE_PATH")
+                            # Ekstrak hostname dari URL SCM
+                            SITE_HOSTNAME=$(echo "$SITE_SCM_URL" | sed -E 's|^https?://([^/]+)/?.*$|\1|')
+
+                            # Pastikan semua variabel tidak kosong
+                            if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ] || [ -z "$SITE_HOSTNAME" ]; then
+                                echo "ERROR: Gagal mengekstrak kredensial dari publish profile. Pastikan ada publishProfile dengan publishMethod='MSDeploy'."
+                                exit 1
+                            fi
+
+                            echo "Username: $USERNAME"
+                            echo "Target SCM Host: $SITE_HOSTNAME"
+                            # Jangan menampilkan password di log!
+
+                            # Membangun nama image Docker lengkap
+                            FULL_DOCKER_IMAGE="${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+                            echo "Mengatur image Docker ke: $FULL_DOCKER_IMAGE"
+
+                            # Melakukan panggilan API untuk mengatur properti 'linuxFxVersion'
+                            # Ini adalah cara yang benar untuk mengatur image Docker di Azure Web App untuk Linux.
+                            # Endpoint API adalah /api/webconfig untuk properti situs atau /config/web untuk pengaturan aplikasi.
+                            # Untuk konfigurasi Linux container, ini biasanya diatur melalui /config/web atau /api/siteconfig.
+                            # Menggunakan /config/web:
+                            curl -X PUT "https://$SITE_HOSTNAME/api/webconfig?api-version=2016-08-01" \
+                                -u "$USERNAME:$PASSWORD" \
+                                -H "Content-Type: application/json" \
+                                -d '{
+                                        "linuxFxVersion": "DOCKER|'"$FULL_DOCKER_IMAGE"'"
+                                    }'
+
+                            # Cek status curl
+                            if [ $? -ne 0 ]; then
+                                echo "ERROR: Gagal melakukan panggilan API untuk mengatur image Docker."
+                                exit 1
+                            fi
+
+                            echo "Image Docker berhasil diatur. Melakukan restart Web App..."
+
+                            # Opsional: Restart Web App untuk memastikan perubahan diterapkan segera
+                            # Restart bisa dilakukan melalui API SCM juga
+                            curl -X POST "https://$SITE_HOSTNAME/api/command" \
+                                -u "$USERNAME:$PASSWORD" \
+                                -H "Content-Type: application/json" \
+                                -d '{ "command": "restart" }'
+
+                            if [ $? -ne 0 ]; then
+                                echo "PERINGATAN: Gagal merestart Web App. Perubahan mungkin memerlukan waktu untuk diterapkan."
+                            fi
+
+                            echo "Deployment selesai!"
+                        '''
+                    }
+                }
+            }
+        }
+    }
+}
