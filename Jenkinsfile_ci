@@ -17,12 +17,11 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-            steps {
-                sh 'composer install'
-                sh 'cp .env.example .env'
-                sh 'php artisan key:generate'
+    steps {
+        sh 'docker run --rm -v $(pwd):/app -w /app php:8.3-cli bash -c "apt update && apt install -y unzip git zip libxml2-dev && docker-php-ext-install dom && curl -sS https://getcomposer.org/installer | php && php composer.phar install"'
             }
         }
+
 
         stage('Test') {
             steps {
