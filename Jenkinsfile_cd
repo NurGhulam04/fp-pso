@@ -75,9 +75,9 @@ pipeline {
                             # Endpoint API adalah /api/webconfig untuk properti situs atau /config/web untuk pengaturan aplikasi.
                             # Untuk konfigurasi Linux container, ini biasanya diatur melalui /config/web atau /api/siteconfig.
                             # Menggunakan /config/web:
-                            curl -X PUT "https://$SITE_HOSTNAME/api/webconfig?api-version=2022-03-01" \\
-                                -u "$USERNAME:$PASSWORD" \\
-                                -H "Content-Type: application/json" \\
+                            curl -X PUT "https://$SITE_HOSTNAME/api/webconfig?api-version=2022-03-01" \
+                                -u "$USERNAME:$PASSWORD" \
+                                -H "Content-Type: application/json" \
                                 -d '{
                                         "linuxFxVersion": "DOCKER|'"$FULL_DOCKER_IMAGE"'"
                                     }'
@@ -92,7 +92,7 @@ pipeline {
 
                             # Opsional: Restart Web App untuk memastikan perubahan diterapkan segera
                             # Restart bisa dilakukan melalui API SCM juga
-                            curl -X POST "https://$SITE_HOSTNAME/api/appsettings/restart" \\
+                            curl -X POST "https://$SITE_HOSTNAME/api/appsettings/restart" \
                                 -u "$USERNAME:$PASSWORD"
 
                             if [ $? -ne 0 ]; then
