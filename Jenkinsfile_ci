@@ -35,9 +35,15 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Push to DockerHub') {
             steps {
-                sh 'docker-compose down && docker-compose up -d --build'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+                    sh '''
+                        echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+                        docker push $DOCKER_IMAGE:$DOCKER_TAG
+                        docker logout
+                    '''
+                }
             }
         }
     }
