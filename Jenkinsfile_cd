@@ -5,7 +5,7 @@ pipeline {
         // Pastikan variabel ini sesuai dengan nama image Docker dan tag yang Anda inginkan
         DOCKER_IMAGE_NAME = 'nurghulam/pso-cicd' // Nama image Docker Anda
         DOCKER_IMAGE_TAG  = 'latest'           // Tag image Docker Anda
-        AZURE_WEBAPP_NAME = 'PerpusKu'         // Nama Azure Web App Anda
+        AZURE_WEBAPP_NAME = 'perpusgul'         // Nama Azure Web App Anda
     }
 
     stages {
