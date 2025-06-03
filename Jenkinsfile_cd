@@ -8,7 +8,7 @@ pipeline {
         DB_USERNAME = "root"
         DB_PASSWORD = "12345678"
     }
-
+    //Test jenkins trigger
     stages {
         stage('Checkout') {
             steps {
