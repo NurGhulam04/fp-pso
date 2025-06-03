@@ -1,11 +1,10 @@
 pipeline {
-        agent any
-        environment {
-        DOCKER_IMAGE   = 'nurghulam/pso-cicd'
-        DOCKER_TAG     = 'latest'
-        WEBAPP_NAME    = 'PerpusKu'
-        RESOURCE_GROUP = 'pso-cicd_group'
-        REGISTRY_URL   = 'https://index.docker.io'
+    agent any
+
+    environment {
+        DOCKER_IMAGE = 'nurghulam/pso-cicd'
+        DOCKER_TAG   = 'latest'
+        WEBAPP_NAME  = 'PerpusKu'
     }
 
     stages {
@@ -15,20 +14,24 @@ pipeline {
             }
         }
 
-       stage('Deploy to Azure Web App') {
+        stage('Deploy Docker Image via Publish Profile') {
             steps {
                 withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE')]) {
                     sh '''
-                        echo "Authenticating with publish profile..."
-                        az webapp config container set \
-                            --name "$WEBAPP_NAME" \
-                            --resource-group "$RESOURCE_GROUP" \
-                            --docker-custom-image-name "$DOCKER_IMAGE:$DOCKER_TAG" \
-                            --docker-registry-server-url "$REGISTRY_URL" \
-                            --slot-production \
-                            --subscription $(az account show --query id -o tsv) \
-                            --debug \
-                            --profile "$PUBLISH_PROFILE"
+                        echo "Extracting publish profile credentials..."
+                        USERNAME=$(xmllint --xpath "string(//publishProfile[@publishMethod='FTP']/@userName)" $PUBLISH_PROFILE)
+                        PASSWORD=$(xmllint --xpath "string(//publishProfile[@publishMethod='FTP']/@userPWD)" $PUBLISH_PROFILE)
+                        SITEURL=$(xmllint --xpath "string(//publishProfile[@publishMethod='FTP']/@publishUrl)" $PUBLISH_PROFILE | sed 's/:21//')
+
+                        echo "Setting container image via Azure Web App API..."
+                        curl -X PUT "https://$SITEURL/config/web?api-version=2022-03-01" \\
+                            -u "$USERNAME:$PASSWORD" \\
+                            -H "Content-Type: application/json" \\
+                            -d '{
+                                "properties": {
+                                    "linuxFxVersion": "DOCKER|nurghulam/pso-cicd:latest"
+                                }
+                            }'
                     '''
                 }
             }
