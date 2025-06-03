@@ -8,7 +8,7 @@ pipeline {
         DB_USERNAME = "root"
         DB_PASSWORD = "12345678"
 
-        DOCKER_IMAGE = "nurghulam/laravel-app"
+        DOCKER_IMAGE = "nurghulam/pso-cicd"
         DOCKER_TAG = "latest"
     }
 
