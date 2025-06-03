@@ -14,18 +14,6 @@ pipeline {
             }
         }
 
-        stage('Build & Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh """
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker build -t $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG .
-                        docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_TAG
-                    """
-                }
-            }
-        }
-
         stage('Deploy Docker Image to Azure') {
             steps {
                 withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE_PATH')]) {
