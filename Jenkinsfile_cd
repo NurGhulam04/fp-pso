@@ -1,0 +1,52 @@
+// pipeline {
+//     agent any
+
+//     environment {
+//         DB_HOST = "mysql"
+//         DB_PORT = "3306"
+//         DB_DATABASE = "perpus"
+//         DB_USERNAME = "root"
+//         DB_PASSWORD = "12345678"
+//     }
+
+//     stages {
+//         stage('Checkout') {
+//             steps {
+//                 git url: 'https://github.com/NurGhulam04/fp-pso.git', branch: 'update'
+//             }
+//         }
+
+//         stage('Install Dependencies') {
+//             steps {
+//                 sh 'composer install'
+//                 sh 'cp .env.example .env'
+//                 sh 'php artisan key:generate'
+//             }
+//         }
+
+//         stage('Test') {
+//             steps {
+//                 sh './vendor/bin/phpunit'
+//             }
+//         }
+
+//         stage('Build Docker Image') {
+//             steps {
+//                 sh 'docker build -t laravel-app .'
+//             }
+//         }
+
+//         stage('Push to DockerHub') {
+//     steps {
+//         withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
+//             sh '''
+//                 echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
+//                 docker tag laravel-app $DOCKER_IMAGE:$DOCKER_TAG
+//                 docker push $DOCKER_IMAGE:$DOCKER_TAG
+//                 docker logout
+//             '''
+//                 }
+//             }
+//         }
+//     }
+// }
