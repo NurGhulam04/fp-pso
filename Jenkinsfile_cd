@@ -92,10 +92,14 @@ pipeline {
 
                             # Opsional: Restart Web App untuk memastikan perubahan diterapkan segera
                             # Restart bisa dilakukan melalui API SCM juga
-                            curl -X POST "https://$SITE_HOSTNAME/api/command" \
+                            curl -X PUT "https://$SITE_HOSTNAME/api/vfs/site/wwwroot/app_offline.htm" \
                                 -u "$USERNAME:$PASSWORD" \
-                                -H "Content-Type: application/json" \
-                                -d '{ "command": "restart" }'
+                                --data-binary "Restarting app"
+
+                            sleep 5
+
+                            curl -X DELETE "https://$SITE_HOSTNAME/api/vfs/site/wwwroot/app_offline.htm" \
+                                -u "$USERNAME:$PASSWORD"
 
                             if [ $? -ne 0 ]; then
                                 echo "PERINGATAN: Gagal merestart Web App. Perubahan mungkin memerlukan waktu untuk diterapkan."
@@ -104,6 +108,25 @@ pipeline {
                             echo "Deployment selesai!"
                         '''
                     }
+                }
+            }
+        }
+
+        stage('Run Migrations') {
+            steps {
+                echo 'Running Laravel Migrations on Azure Web App...'
+                withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE_PATH')]) {
+                    sh '''
+                        USERNAME=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userName)" "$PUBLISH_PROFILE_PATH")
+                        PASSWORD=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userPWD)" "$PUBLISH_PROFILE_PATH")
+                        SITE_SCM_URL=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@publishUrl)" "$PUBLISH_PROFILE_PATH")
+                        SITE_HOSTNAME=$(echo "$SITE_SCM_URL" | sed -E 's|^https?://([^/]+)/?.*$|\1|')
+
+                        curl -X POST "https://$SITE_HOSTNAME/api/command" \
+                            -u "$USERNAME:$PASSWORD" \
+                            -H "Content-Type: application/json" \
+                            -d '{ "command": "php artisan migrate --force", "dir": "/home/site/wwwroot" }'
+                    '''
                 }
             }
         }
