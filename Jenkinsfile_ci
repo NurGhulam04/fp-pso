@@ -28,10 +28,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh '''
-                    docker-compose down || true
-                    docker-compose up --build --abort-on-container-exit
-                '''
+                sh'./vendor/bin/phpunit'
             }
         }
 
