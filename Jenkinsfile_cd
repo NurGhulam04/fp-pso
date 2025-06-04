@@ -1,0 +1,52 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE_NAME = 'nurghulam/pso-cicd'
+        DOCKER_IMAGE_TAG  = 'latest'
+        AZURE_WEBAPP_NAME = 'perpusgul'
+    }
+
+    stages {
+        stage('Checkout Source') {
+            steps {
+                git url: 'https://github.com/NurGhulam04/fp-pso.git', branch: 'main'
+            }
+        }
+
+        stage('Deploy Docker Image to Azure') {
+            steps {
+                withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE_PATH')]) {
+                    sh '''
+                        USERNAME=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userName)" "$PUBLISH_PROFILE_PATH")
+                        PASSWORD=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userPWD)" "$PUBLISH_PROFILE_PATH")
+                        PUBLISH_URL=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@publishUrl)" "$PUBLISH_PROFILE_PATH")
+                        HOST=$(echo "$PUBLISH_URL" | sed -E 's|:.*$||')
+
+                        IMAGE_NAME="${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+                        echo "Deploying image $IMAGE_NAME to Azure Web App $HOST"
+
+                        curl -X PUT "https://$HOST/api/settings" \
+                            -u "$USERNAME:$PASSWORD" \
+                            -H "Content-Type: application/json" \
+                            -d '{
+                                  "linuxFxVersion": "DOCKER|'"$IMAGE_NAME"'"
+                                }'
+
+                        echo "Restarting app..."
+                        curl -X POST "https://$HOST/api/command" \
+                            -u "$USERNAME:$PASSWORD" \
+                            -H "Content-Type: application/json" \
+                            -d '{ "command": "touch /home/site/wwwroot/restart.txt" }'
+                    '''
+                }
+            }
+        }
+
+        stage('Verify Deployment') {
+            steps {
+                echo 'Deployment complete! If needed, migration should run inside container startup script (ex: entrypoint).'
+            }
+        }
+    }
+}
