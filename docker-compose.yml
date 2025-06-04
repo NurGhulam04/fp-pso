@@ -4,19 +4,20 @@ services:
   app:
     build: .
     container_name: laravel_app
-    ports:
-      - "8000:9000"
+    expose:
+      - "9000"
     volumes:
       - .:/var/www
-    depends_on:
-      - db
     environment:
       APP_ENV: local
-      DB_HOST: db
+      DB_CONNECTION: mysql
+      DB_HOST: perpusgul.mysql.database.azure.com
       DB_PORT: 3306
       DB_DATABASE: perpus
       DB_USERNAME: rrjzuvhxsk
       DB_PASSWORD: Qw9oYbDRajMjS$Kk
+    networks:
+      - laravel
 
   web:
     image: nginx:alpine
@@ -28,18 +29,26 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
+    networks:
+      - laravel
 
+  # Optional: hanya gunakan jika butuh DB lokal
   db:
     image: mysql:8.0
     container_name: laravel_db
     restart: always
-    ports:
-      - "3306:3306"
     environment:
       MYSQL_DATABASE: perpus
       MYSQL_ROOT_PASSWORD: Qw9oYbDRajMjS$Kk
     volumes:
       - dbdata:/var/lib/mysql
+    networks:
+      - laravel
+    # ports:
+    #   - "3306:3306"  # Enable only if needed
 
 volumes:
   dbdata:
+
+networks:
+  laravel:
