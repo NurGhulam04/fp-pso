@@ -33,17 +33,17 @@ services:
       - laravel
 
   # Optional: hanya gunakan jika butuh DB lokal
-  db:
-    image: mysql:8.0
-    container_name: laravel_db
-    restart: always
-    environment:
-      MYSQL_DATABASE: perpus
-      MYSQL_ROOT_PASSWORD: Qw9oYbDRajMjS$Kk
-    volumes:
-      - dbdata:/var/lib/mysql
-    networks:
-      - laravel
+#   db:
+#     image: mysql:8.0
+#     container_name: laravel_db
+#     restart: always
+#     environment:
+#       MYSQL_DATABASE: perpus
+#       MYSQL_ROOT_PASSWORD: Qw9oYbDRajMjS$Kk
+#     volumes:
+#       - dbdata:/var/lib/mysql
+#     networks:
+#       - laravel
     # ports:
     #   - "3306:3306"  # Enable only if needed
 
