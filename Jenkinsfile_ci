@@ -29,11 +29,13 @@ pipeline {
         stage('Test') {
             steps {
                 sh '''
-                docker run --rm -v $(pwd):/app -w /app php:8.3-cli bash -c "
-                    cp .env.example .env.testing && \
-                    php artisan migrate --env=testing && \
-                    php artisan db:seed --env=testing && \
-                    ./vendor/bin/phpunit
+                docker build -t laravel-test-image -f Dockerfile .
+                docker run --rm -v $(pwd):/app -w /app laravel-test-image bash -c "
+                    cp .env.testing .env &&
+                    php artisan config:clear &&
+                    php artisan migrate --env=testing &&
+                    php artisan test
+
                 "
                 '''
             }

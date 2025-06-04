@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     git curl zip unzip libpng-dev libonig-dev libxml2-dev libzip-dev \
     nginx supervisor bash\
     && rm -rf /var/lib/apt/lists/* \
-    && docker-php-ext-install pdo_mysql mbstring zip \
+    && docker-php-ext-install pdo_mysql dom mbstring zip \
     && rm /etc/nginx/sites-enabled/default
 
 # Install Composer
