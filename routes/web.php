@@ -11,6 +11,10 @@ use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
+use Prometheus\CollectorRegistry;
+use Prometheus\RenderTextFormat;
+use Prometheus\Storage\InMemory;
+use App\Http\Controllers\MetricsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,3 +104,7 @@ Route::get('/reports/not-returned', [ReportsController::class, 'not_returned'])-
 
 Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
 Route::post('/settings', [SettingsController::class, 'update'])->name('settings');
+
+//route monitoring
+Route::get('/metrics', [MetricsController::class, 'index']);
+
