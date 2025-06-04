@@ -22,11 +22,7 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
-    command: bash -c "
-      cp .env.example .env && \
-      php artisan config:clear && \
-      php artisan migrate --env=testing && \
-      php artisan test"
+
 
   db:
     image: mysql:8.0
