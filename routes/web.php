@@ -12,6 +12,9 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StudentController;
 use Illuminate\Support\Facades\Route;
 use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
+use Prometheus\CollectorRegistry;
+use Prometheus\RenderTextFormat;
+use Prometheus\Storage\InMemory;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,4 +102,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::post('/settings', [SettingsController::class, 'update'])->name('settings');
+
+    Route::get('/metrics', function () {
+    $registry = new CollectorRegistry(new InMemory());
+
+    $counter = $registry->registerCounter('app', 'requests_total', 'Total requests');
+    $counter->inc(); // increment 1 tiap request
+
+    $renderer = new RenderTextFormat();
+    $metrics = $renderer->render($registry->getMetricFamilySamples());
+
+    return response($metrics)->header('Content-Type', RenderTextFormat::MIME_TYPE);
+});
 });
