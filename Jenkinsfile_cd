@@ -36,10 +36,18 @@ pipeline {
                         PASSWORD=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userPWD)" "$PUBLISH_PROFILE_PATH")
                         PUBLISH_URL=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@publishUrl)" "$PUBLISH_PROFILE_PATH")
 
+                        # =================== REVISI (START) ===================
+                        # Baris ini ditambahkan untuk debugging.
+                        # Ini akan mencetak nilai sebenarnya dari USERNAME ke log untuk verifikasi.
+                        # Tanda kurung siku [ ] membantu melihat jika ada spasi atau karakter tak terlihat.
+                        echo "DEBUG: Raw USERNAME from xmllint is: [$USERNAME]"
+                        # =================== REVISI (END) =====================
+
                         if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ] || [ -z "$PUBLISH_URL" ]; then
                             echo "Error: Failed to parse credentials or publish URL from publish profile."
-                            echo "USERNAME: $USERNAME"
-                            echo "PUBLISH_URL: $PUBLISH_URL"
+                            # Ditambahkan tanda kurung siku di sini untuk debugging yang lebih jelas saat gagal
+                            echo "USERNAME value check: [$USERNAME]"
+                            echo "PUBLISH_URL value check: [$PUBLISH_URL]"
                             exit 1
                         fi
 
@@ -67,12 +75,16 @@ pipeline {
                         sleep 15
 
                         echo "Attempting to explicitly restart the Web App: $HOST"
-                        # Use the /api/site/restart Kudu endpoint
-                        # This is a more reliable way to restart the site via Kudu API
+
+                        # =================== REVISI (START) ===================
+                        # KOREKSI: Endpoint Kudu API yang benar untuk restart adalah /api/site/restart.
+                        # Menggunakan variabel $HOST agar konsisten.
                         curl -X POST "https://$HOST/api/site/restart" \
                             -u "$USERNAME:$PASSWORD" \
                             -H "Content-Type: application/json" \
-                            -d '' --fail --show-error # Body is typically empty for this endpoint
+                            -d '' --fail --show-error # Body kosong untuk endpoint ini
+
+                        # =================== REVISI (END) =====================
 
                         echo "Web App restart command issued."
                     '''
