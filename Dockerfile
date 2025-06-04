@@ -58,7 +58,12 @@ COPY supervisor.conf /etc/supervisor/conf.d/supervisor.conf
 # Expose port (Azure will map external traffic to this port)
 EXPOSE 80
 
-# Use Supervisor to run both services
-CMD ["/usr/bin/supervisord", "-n", "-c", "/etc/supervisor/supervisord.conf"]
+# Salin skrip startup.sh dan jadikan executable
+COPY startup.sh /usr/local/bin/startup.sh
+RUN chmod +x /usr/local/bin/startup.sh
 
+# Expose port
+EXPOSE 8000
 
+# Gunakan startup.sh sebagai entry point utama
+CMD ["/usr/local/bin/startup.sh"]
