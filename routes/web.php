@@ -103,6 +103,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
     Route::post('/settings', [SettingsController::class, 'update'])->name('settings');
 
+});
+
     Route::get('/metrics', function () {
     $registry = new CollectorRegistry(new InMemory());
 
@@ -113,5 +115,4 @@ Route::middleware('auth')->group(function () {
     $metrics = $renderer->render($registry->getMetricFamilySamples());
 
     return response($metrics)->header('Content-Type', RenderTextFormat::MIME_TYPE);
-});
 });
