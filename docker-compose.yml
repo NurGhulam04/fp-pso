@@ -15,8 +15,8 @@ services:
       DB_HOST: db
       DB_PORT: 3306
       DB_DATABASE: perpus
-      DB_USERNAME: root
-      DB_PASSWORD: 12345678
+      DB_USERNAME: rrjzuvhxsk
+      DB_PASSWORD: Qw9oYbDRajMjS$Kk
 
   web:
     image: nginx:alpine
@@ -37,7 +37,7 @@ services:
       - "3306:3306"
     environment:
       MYSQL_DATABASE: perpus
-      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_ROOT_PASSWORD: Qw9oYbDRajMjS$Kk
     volumes:
       - dbdata:/var/lib/mysql
 
