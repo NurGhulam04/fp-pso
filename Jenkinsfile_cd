@@ -28,53 +28,29 @@ pipeline {
 
                 withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE_PATH')]) {
                     sh '''#!/bin/bash
-                        set -e # Exit immediately if a command exits with a non-zero status.
-                        set -x # Print commands and their arguments as they are executed.
+                        set -e
+                        set -x
 
                         echo "Parsing Publish Profile: $PUBLISH_PROFILE_PATH"
                         USERNAME=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userName)" "$PUBLISH_PROFILE_PATH")
                         PASSWORD=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userPWD)" "$PUBLISH_PROFILE_PATH")
-                        PUBLISH_URL=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@publishUrl)" "$PUBLISH_PROFILE_PATH")
+                        # ... baris lainnya ...
+
+                        echo "DEBUG: Raw USERNAME from xmllint is: [$USERNAME]" // Tambahkan ini
+                        echo "DEBUG: Raw PASSWORD from xmllint is: [$PASSWORD]" // Tambahkan ini (hati-hati jika log bisa dilihat publik)
 
                         if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ] || [ -z "$PUBLISH_URL" ]; then
                             echo "Error: Failed to parse credentials or publish URL from publish profile."
-                            echo "USERNAME: $USERNAME"
-                            echo "PUBLISH_URL: $PUBLISH_URL"
+                            echo "USERNAME value check: [$USERNAME]" // Tambahkan ini
+                            echo "PUBLISH_URL value check: [$PUBLISH_URL]"
                             exit 1
                         fi
 
-                        # Extract the SCM host (e.g., yourwebapp.scm.azurewebsites.net)
-                        HOST=$(echo "$PUBLISH_URL" | sed -E 's|:.*$||')
-                        if [ -z "$HOST" ]; then
-                            echo "Error: Failed to extract HOST from PUBLISH_URL: $PUBLISH_URL"
-                            exit 1
-                        fi
-                        echo "SCM Host: $HOST"
+                        # ... sisa skrip ...
 
-                        IMAGE_TO_DEPLOY="DOCKER|${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
-                        echo "Updating Azure Web App settings to use image: $IMAGE_TO_DEPLOY"
-
-                        # Update the Docker image configuration
-                        # This action itself should trigger Azure to pull the new image and restart the app.
                         curl -X PUT "https://$HOST/api/settings" \
                             -u "$USERNAME:$PASSWORD" \
-                            -H "Content-Type: application/json" \
-                            -H "If-Match: *" \
-                            -d "{ \\"linuxFxVersion\\": \\"$IMAGE_TO_DEPLOY\\" }" --fail --show-error
-
-                        echo "Successfully updated linuxFxVersion. Azure will pull the new image and restart the service."
-                        echo "Waiting a few seconds before attempting an explicit restart..."
-                        sleep 15
-
-                        echo "Attempting to explicitly restart the Web App: $HOST"
-                        # Use the /api/site/restart Kudu endpoint
-                        # This is a more reliable way to restart the site via Kudu API
-                        curl -X POST "https://$HOST/api/site/restart" \
-                            -u "$USERNAME:$PASSWORD" \
-                            -H "Content-Type: application/json" \
-                            -d '' --fail --show-error # Body is typically empty for this endpoint
-
-                        echo "Web App restart command issued."
+                            # ...
                     '''
                 }
             }
