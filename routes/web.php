@@ -16,6 +16,7 @@ use Prometheus\RenderTextFormat;
 use Prometheus\Storage\InMemory;
 use App\Http\Controllers\MetricsController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -106,5 +107,5 @@ Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
 Route::post('/settings', [SettingsController::class, 'update'])->name('settings');
 
 //route monitoring
-Route::get('/metrics', [MetricsController::class, 'index']);
 
+Route::get('/metrics', [MetricsController::class, 'metrics']);
