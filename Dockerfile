@@ -37,6 +37,16 @@ COPY --from=frontend /app/public ./public
 # Install PHP dependencies
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
+# ==================================
+# Tambahkan baris ini untuk membersihkan cache Laravel
+# Tambahkan setelah composer install dan copy kode sumber
+# ==================================
+RUN php artisan config:clear \
+    && php artisan cache:clear \
+    && php artisan view:clear \
+    && php artisan route:clear \
+    && php artisan optimize:clear
+
 # Copy default environment (kamu bisa ubah sesuai kebutuhan)
 # Make sure your .env has correct database connection string for Azure MySQL
 COPY .env .env.example
