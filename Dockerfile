@@ -49,8 +49,7 @@ RUN php artisan config:clear \
 
 # Copy default environment (kamu bisa ubah sesuai kebutuhan)
 # Make sure your .env has correct database connection string for Azure MySQL
-COPY .env .env.example
-RUN cp .env.example .env
+COPY  .env.example .env
 
 # Generate Laravel key
 RUN php artisan key:generate

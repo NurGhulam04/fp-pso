@@ -2,45 +2,87 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_NAME = 'nurghulam/pso-cicd'
-        DOCKER_IMAGE_TAG  = 'latest'
-        AZURE_WEBAPP_NAME = 'perpusgul'
+        DOCKER_IMAGE_NAME = 'nurghulam/pso-cicd' // Your Docker Hub image name
+        DOCKER_IMAGE_TAG  = 'latest'             // The tag of the image to deploy
+        // AZURE_WEBAPP_NAME = 'perpusgul' // Defined but not directly used in script, HOST is derived from profile
     }
 
     stages {
-        stage('Checkout Source') {
+        stage('Checkout Source (Optional for CD)') {
+            // This stage might be optional if this pipeline is purely for deploying
+            // an image already built and pushed by a CI pipeline.
+            // If this pipeline is triggered by changes to 'main' and deploys an image
+            // also tagged 'latest' from 'main', it's okay.
             steps {
+                // Consider cleaning workspace if needed
+                // cleanWs()
                 git url: 'https://github.com/NurGhulam04/fp-pso.git', branch: 'main'
             }
         }
 
-        stage('Deploy Docker Image to Azure') {
+        stage('Deploy Docker Image to Azure Web App') {
             steps {
+                // Ensure xmllint and curl are available on the agent
+                // sh 'command -v xmllint >/dev/null 2>&1 || { echo >&2 "xmllint not found. Aborting."; exit 1; }'
+                // sh 'command -v curl >/dev/null 2>&1 || { echo >&2 "curl not found. Aborting."; exit 1; }'
+
                 withCredentials([file(credentialsId: 'azure-publish-profile', variable: 'PUBLISH_PROFILE_PATH')]) {
-                    sh '''
+                    sh '''#!/bin/bash
+                        set -e # Exit immediately if a command exits with a non-zero status.
+                        set -x # Print commands and their arguments as they are executed.
+
+                        echo "Parsing Publish Profile: $PUBLISH_PROFILE_PATH"
                         USERNAME=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userName)" "$PUBLISH_PROFILE_PATH")
                         PASSWORD=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@userPWD)" "$PUBLISH_PROFILE_PATH")
                         PUBLISH_URL=$(xmllint --xpath "string(//publishProfile[@publishMethod='MSDeploy']/@publishUrl)" "$PUBLISH_PROFILE_PATH")
+
+                        if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ] || [ -z "$PUBLISH_URL" ]; then
+                            echo "Error: Failed to parse credentials or publish URL from publish profile."
+                            echo "USERNAME: $USERNAME"
+                            echo "PUBLISH_URL: $PUBLISH_URL"
+                            exit 1
+                        fi
+
+                        # Extract the SCM host (e.g., yourwebapp.scm.azurewebsites.net)
                         HOST=$(echo "$PUBLISH_URL" | sed -E 's|:.*$||')
+                        if [ -z "$HOST" ]; then
+                            echo "Error: Failed to extract HOST from PUBLISH_URL: $PUBLISH_URL"
+                            exit 1
+                        fi
+                        echo "SCM Host: $HOST"
 
-                        IMAGE_NAME="${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
-                        echo "Deploying image $IMAGE_NAME to Azure Web App $HOST"
+                        IMAGE_TO_DEPLOY="DOCKER|${DOCKER_IMAGE_NAME}:${DOCKER_IMAGE_TAG}"
+                        echo "Updating Azure Web App settings to use image: $IMAGE_TO_DEPLOY"
 
+                        # Update the Docker image configuration
+                        # This action itself should trigger Azure to pull the new image and restart the app.
                         curl -X PUT "https://$HOST/api/settings" \
                             -u "$USERNAME:$PASSWORD" \
                             -H "Content-Type: application/json" \
-                            -d '{
-                                  "linuxFxVersion": "DOCKER|'"$IMAGE_NAME"'"
-                                }'
+                            -H "If-Match: *" \
+                            -d "{ \\"linuxFxVersion\\": \\"$IMAGE_TO_DEPLOY\\" }" --fail --show-error
 
-                        echo "Restarting app..."
-                        curl -X POST "https://$HOST/api/command" \
+                        echo "Successfully updated linuxFxVersion. Azure will pull the new image and restart the service."
+                        echo "Waiting a few seconds before attempting an explicit restart..."
+                        sleep 15
+
+                        echo "Attempting to explicitly restart the Web App: $HOST"
+                        # Use the /api/site/restart Kudu endpoint
+                        # This is a more reliable way to restart the site via Kudu API
+                        curl -X POST "https://$HOST/api/site/restart" \
                             -u "$USERNAME:$PASSWORD" \
                             -H "Content-Type: application/json" \
-                            -d '{ "command": "touch /home/site/wwwroot/restart.txt" }'
+                            -d '' --fail --show-error # Body is typically empty for this endpoint
+
+                        echo "Web App restart command issued."
                     '''
                 }
             }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline finished.'
         }
     }
 }
