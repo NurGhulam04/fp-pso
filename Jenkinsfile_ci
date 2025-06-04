@@ -84,18 +84,17 @@ pipeline {
                         git push https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/NurGhulam04/fp-pso.git ${GIT_TARGET_BRANCH}
                     """
                 }
-
             }
         }
+    }
 
-        post {
-            always {
-                // Membersihkan workspace setelah build selesai
-                cleanWs()
-                // Contoh: Hapus image docker lokal yang sudah tidak terpakai untuk menghemat ruang
-                sh "docker rmi ${DOCKER_IMAGE_NAME} || true" // || true agar tidak error jika image tidak ada
-                sh "docker rmi ${DOCKERHUB_REPO}:${DOCKERHUB_TAG} || true"
-            }
+    post {
+        always {
+            // Membersihkan workspace setelah build selesai
+            cleanWs()
+            // Contoh: Hapus image docker lokal yang sudah tidak terpakai untuk menghemat ruang
+            sh "docker rmi ${DOCKER_IMAGE_NAME} || true" // || true agar tidak error jika image tidak ada
+            sh "docker rmi ${DOCKERHUB_REPO}:${DOCKERHUB_TAG} || true"
         }
     }
 }
