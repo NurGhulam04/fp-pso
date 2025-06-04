@@ -81,6 +81,7 @@ class ExampleTest extends TestCase
     public function test_book_issue_route()
     {
         $response = $this->get('/book_issue');
+         $response->dump();
         $response->assertStatus(200);
     }
 }
