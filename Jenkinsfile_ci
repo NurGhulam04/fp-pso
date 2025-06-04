@@ -20,8 +20,8 @@ pipeline {
         }
 
         stage('Install Dependencies') {
-    steps {
-        sh 'docker run --rm -v $(pwd):/app -w /app php:8.3-cli bash -c "apt update && apt install -y unzip git zip libxml2-dev && docker-php-ext-install dom && curl -sS https://getcomposer.org/installer | php && php composer.phar install"'
+            steps {
+                sh 'docker run --rm -v $(pwd):/app -w /app php:8.3-cli bash -c "apt update && apt install -y unzip git zip libxml2-dev && docker-php-ext-install dom && curl -sS https://getcomposer.org/installer | php && php composer.phar install"'
             }
         }
 
@@ -48,6 +48,53 @@ pipeline {
                         docker logout
                     '''
                 }
+            }
+        }
+        stage('Merge to Main and Push') {
+            steps {
+                // Menggunakan credentials GitHub yang sudah disimpan di Jenkins
+                // Ganti 'github-repo-creds' dengan ID credentials GitHub Anda
+                withCredentials([usernamePassword(credentialsId: 'github-repo-creds', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
+                    sh """
+                        # Konfigurasi identitas Git untuk commit merge (opsional tapi baik)
+                        git config --global user.email "jenkins@example.com"
+                        git config --global user.name "Jenkins CI"
+
+                        # Pastikan kita berada di direktori kerja yang benar (workspace Jenkins)
+                        # Fetch semua perubahan dari remote, termasuk tags, dan hapus branch remote yang sudah tidak ada
+                        git fetch origin --prune --tags
+
+                        # Checkout ke branch 'main', pastikan up-to-date dengan remote 'main'
+                        # -B main akan membuat branch 'main' jika belum ada, atau reset jika sudah ada, lalu set untuk track origin/main
+                        git checkout -B ${GIT_TARGET_BRANCH} origin/${GIT_TARGET_BRANCH}
+
+                        # Merge branch 'update' (yang sudah di-build dan test) ke 'main'
+                        # Menggunakan 'origin/update' untuk memastikan kita merge versi terbaru dari remote 'update'
+                        # yang mungkin saja berubah jika ada push lain ke 'update' selama pipeline berjalan.
+                        # Atau, jika Anda yakin ingin merge versi 'update' yang di-checkout di awal pipeline:
+                        # git merge ${GIT_SOURCE_BRANCH} -m "Jenkins: Auto-merge branch '${GIT_SOURCE_BRANCH}' into '${GIT_TARGET_BRANCH}' after Docker push"
+                        # Untuk kasus ini, karena 'update' sudah di-checkout dan diproses, kita bisa merge 'HEAD' dari branch 'update'
+                        # Namun, lebih aman untuk merge 'origin/update' yang sudah di-fetch
+                        echo "Merging branch 'origin/${GIT_SOURCE_BRANCH}' into '${GIT_TARGET_BRANCH}'"
+                        git merge origin/${GIT_SOURCE_BRANCH} -m "Jenkins: Auto-merge branch '${GIT_SOURCE_BRANCH}' into '${GIT_TARGET_BRANCH}' after successful Docker push"
+
+                        # Push perubahan (termasuk merge commit) ke branch 'main' di remote repository
+                        # Menggunakan token untuk otentikasi HTTPS
+                        echo "Pushing '${GIT_TARGET_BRANCH}' to origin"
+                        git push https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/NurGhulam04/fp-pso.git ${GIT_TARGET_BRANCH}
+                    """
+                }
+
+            }
+        }
+
+        post {
+            always {
+                // Membersihkan workspace setelah build selesai
+                cleanWs()
+                // Contoh: Hapus image docker lokal yang sudah tidak terpakai untuk menghemat ruang
+                sh "docker rmi ${DOCKER_IMAGE_NAME} || true" // || true agar tidak error jika image tidak ada
+                sh "docker rmi ${DOCKERHUB_REPO}:${DOCKERHUB_TAG} || true"
             }
         }
     }
