@@ -23,9 +23,9 @@
                 </div>
                 <div class="offset-md-2 col-md-2">
                     <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                        {{-- <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
                             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            {{-- Hi {{ auth()->user()->name }} --}}
+                             Hi {{ auth()->user()->name }}
                         </button>
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                             <a class="dropdown-item" href="{{ route('change_password') }}">Change Password</a>
@@ -33,7 +33,7 @@
                         </div>
                         <form method="post" id="logoutForm" action="{{ route('logout') }}">
                             @csrf
-                        </form>
+                        </form> --}}
                     </div>
                 </div>
             </div>
