@@ -2,31 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use Prometheus\CollectorRegistry;
-use Prometheus\Storage\InMemory;
-use Prometheus\RenderTextFormat;
 use Illuminate\Http\Response;
+use Prometheus\CollectorRegistry;
+use Prometheus\RenderTextFormat;
+use Prometheus\Storage\InMemory;
 
 class MetricsController extends Controller
 {
-    public function metrics()
+    public function index()
     {
+        // Gunakan storage InMemory (untuk demo, sebaiknya pakai Redis untuk production)
         $registry = new CollectorRegistry(new InMemory());
 
-        $counter = $registry->getOrRegisterCounter(
-            'app',
-            'http_requests_total',
-            'Total HTTP requests',
-            ['method', 'endpoint']
+        // Cek apakah counter sudah ada, kalau belum, register baru
+        $counter = $registry->registerCounter(
+            'app',                    // namespace
+            'requests_total',         // name
+            'Total number of requests.', // help text
+            []                        // label names
         );
 
-        $counter->inc(['GET', '/metrics']);
+        $counter->inc(); // Tambahkan 1 ke counter
 
+        // Render output Prometheus
         $renderer = new RenderTextFormat();
-        $result = $renderer->render($registry->getMetricFamilySamples());
+        $metrics = $renderer->render($registry->getMetricFamilySamples());
 
-        return response($result, 200)
-            ->header('Content-Type', RenderTextFormat::MIME_TYPE);
+        return response($metrics, 200)->header('Content-Type', RenderTextFormat::MIME_TYPE);
     }
 }
-
