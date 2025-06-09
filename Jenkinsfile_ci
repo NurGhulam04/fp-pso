@@ -24,12 +24,10 @@ pipeline {
                 sh '''
                     docker run --rm -v $(pwd):/app -w /app php:8.3-cli bash -c "
                         apt update && \
-                        apt install -y unzip git zip libxml2-dev libjpeg-dev libpng-dev && \
-                        docker-php-ext-install dom gd && \
+                        apt install -y unzip git zip libzip-dev libpng-dev libxml2-dev && \
+                        docker-php-ext-install zip gd dom && \
                         curl -sS https://getcomposer.org/installer | php && \
-                        php composer.phar install && \
-                        php composer.phar require maatwebsite/excel && \
-                        php composer.phar require phpoffice/phpspreadsheet
+                        php composer.phar install
                     "
                 '''
             }
