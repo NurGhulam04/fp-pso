@@ -7,6 +7,7 @@ use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
+    use RefreshDatabase;
     /**
      * Test the /dashboard route.
      *
@@ -14,8 +15,8 @@ class ExampleTest extends TestCase
      */
     public function test_dashboard_route()
     {
-        //$response = $this->get('/dashboard');
-        //$response->assertStatus(200);
+        $response = $this->get('/dashboard');
+        $response->assertStatus(200);
     }
 
     /**
