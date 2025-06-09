@@ -111,6 +111,10 @@ Route::post('/settings', [SettingsController::class, 'update'])->name('settings'
 //route monitoring (dari branch 'update')
 Route::get('/metrics', [MetricsController::class, 'metrics']);
 
+Route::post('/reports/date-wise/export', [App\Http\Controllers\ReportsController::class, 'export_date_wise'])->name('reports.date_wise_export');
+Route::post('/report/month-wise/export', [ReportsController::class, 'export_month_wise'])->name('reports.month_wise_export');
+Route::post('/reports/not-returned/export', [ReportsController::class, 'exportNotReturnedBooks'])->name('reports.not_returned_export');
+
 // Rute '/Change-password' yang dikomentari dari branch 'main' tidak dimasukkan
 // karena sudah ada rute 'change-password' yang aktif dari branch 'update'.
 // Route::post('/Change-password', [LoginController::class, 'changePassword'])->name('change_password');

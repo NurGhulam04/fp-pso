@@ -21,6 +21,16 @@
                         </div>
                         <input type="submit" class="btn btn-danger" name="search_date" value="Search">
                     </form>
+                    @if ($books && count($books) > 0)
+                    <div class="text-center mb-4">
+                        <form action="{{ route('reports.date_wise_export') }}" method="POST">
+                            @csrf
+                            <!-- Kirim tanggal yang sama ke route export -->
+                            <input type="hidden" name="date" value="{{ request('date') ?? date('Y-m-d') }}">
+                            <button type="submit" class="btn btn-success">Export to Excel</button>
+                        </form>
+                    </div>
+                    @endif
                 </div>
             </div>
             @if ($books)
