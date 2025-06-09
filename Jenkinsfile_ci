@@ -40,11 +40,24 @@ pipeline {
             }
         }
 
+        // stage('Test') {
+        //     steps {
+        //         sh'./vendor/bin/phpunit'
+        //     }
+        // }
         stage('Test') {
             steps {
-                sh'./vendor/bin/phpunit'
+                sh '''
+                    docker run --rm -v $(pwd):/app -w /app php:8.3-cli bash -c "
+                        apt update && \
+                        apt install -y libsqlite3-dev && \
+                        docker-php-ext-install pdo pdo_sqlite && \
+                        php vendor/bin/phpunit
+                    "
+                '''
             }
         }
+
 
 
         // stage('Push to DockerHub') {
