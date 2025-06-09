@@ -5,9 +5,36 @@ namespace App\Http\Controllers;
 use App\Models\book;
 use App\Models\book_issue;
 use Illuminate\Http\Request;
+use App\Exports\DateWiseReportExport;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\MonthWiseReportExport;
+use App\Exports\NotReturnedReportExport;
 
 class ReportsController extends Controller
 {
+    public function exportNotReturnedBooks()
+    {
+    $fileName = 'not_returned_books_' . date('Y-m-d') . '.xlsx';
+    return Excel::download(new NotReturnedReportExport, $fileName);
+    }
+
+    public function export_month_wise(Request $request)
+    {
+    $request->validate(['month' => 'required|date']);
+    $month = $request->month;
+    $fileName = 'month_wise_report_' . $month . '.xlsx';
+
+    return Excel::download(new MonthWiseReportExport($month), $fileName);
+    }
+
+    public function export_date_wise(Request $request)
+    {
+    $request->validate(['date' => 'required|date']);
+    $date = $request->date;
+    $fileName = 'date_wise_report_' . $date . '.xlsx';
+
+    return Excel::download(new DateWiseReportExport($date), $fileName);
+    }
     public function index()
     {
         return view('report.index');
