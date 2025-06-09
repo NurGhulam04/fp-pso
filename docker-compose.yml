@@ -29,4 +29,4 @@ services:
     container_name: laravel_db
     environment:
       MYSQL_DATABASE: perpus
-      MYSQL_ROOT_PASSWORD: Qw9oYbDRajMjS$Kk
+      MYSQL_ROOT_PASSWORD: 12345678
