@@ -11,10 +11,7 @@ class NotReturnedReportExport implements FromCollection, WithHeadings, WithMappi
 {
 public function collection()
 {
-    // Ambil semua pinjaman yang BELUM lewat tanggal pengembalian
-    return \App\Models\book_issue::whereDate('return_date', '>=', now()->toDateString())
-        ->with(['student', 'book'])
-        ->get();
+    return \App\Models\book_issue::with(['student', 'book'])->get();
 }
 
 
