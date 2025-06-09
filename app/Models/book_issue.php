@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Book;
+use App\Models\Student;
 
 class book_issue extends Model
 {
@@ -27,9 +29,9 @@ class book_issue extends Model
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function book()
-    {
+{
     return $this->belongsTo(Book::class);
-    }
+}
 
 
     protected $casts = [
