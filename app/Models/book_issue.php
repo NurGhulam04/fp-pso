@@ -26,9 +26,9 @@ class book_issue extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function book(): BelongsTo
+    public function book()
     {
-        return $this->belongsTo(book::class, 'book_id', 'id');
+    return $this->belongsTo(Book::class);
     }
 
 

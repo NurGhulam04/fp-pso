@@ -16,13 +16,23 @@ class dashboardController extends Controller
 {
     public function index()
     {
+        $mostIssuedBooks = \App\Models\book_issue::select('book_id', \DB::raw('count(*) as total'))
+            ->groupBy('book_id')
+            ->orderBy('total', 'DESC')
+            ->with(['book' => function($query) {
+                $query->select('id', 'name');
+            }])
+            ->take(5)
+            ->get();
+
         return view('dashboard', [
-            'authors' => auther::count(),
-            'publishers' => publisher::count(),
-            'categories' => category::count(),
-            'books' => book::count(),
-            'students' => student::count(),
-            'issued_books' => book_issue::count(),
+            'authors' => \App\Models\auther::count(),
+            'publishers' => \App\Models\publisher::count(),
+            'categories' => \App\Models\category::count(),
+            'books' => \App\Models\book::count(),
+            'students' => \App\Models\student::count(),
+            'issued_books' => \App\Models\book_issue::count(),
+            'most_issued_books' => $mostIssuedBooks
         ]);
     }
 
