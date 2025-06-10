@@ -26,6 +26,75 @@ CRUD Library Book:
 - Menambahkan list Buku Paling Sering Dipinjam
 - Menambahkan fitur export ke excel untuk setiap Reports (Date Wished, Monthly Wished, Not Returned)
 
+## Progress Setup
+
+### Docker Setup
+- Clone the project repo
+- Install Docker desktop apps
+- Buat Dockerfile
+- BuatNginx configuration file
+- Buat docker-compose.yml file
+- Menambahkan daftar service (app, web, db)
+- Jalankan docker desktop
+- Build and start container
+- Open the project in localhost:8080 or click the link in the docker apps
+- repo link: https://github.com/NurGhulam04/fp-pso
+
+### Jenkins Setup
+- Buat VM di azure untuk Jenkins
+- Install Jenkins Pada VM
+- Buat Jenkinfile yang berisi pipeline script
+- Buat Personal Access Token Github
+- Buat credential baru di jenkins
+- Buat Pipeline baru
+- Konfigurasi pipeline
+
+### Buat Job Pipeline CI/CD
+- Buat webhook github untuk trigger pipeline
+- Buat job pipeline untuk ci dengan trigger dari branch update
+- Buat job pipeline untuk cd dengan trigger dari branch main
+
+### Build Jenkinsfile_ci
+- Buat jenkinsfil_ci
+- Mendefinisikan environment yang digunakan seluruh pipeline (database, docker image, docker tag) 
+- Buat stage (checkout, instal dependencies, test, build, merge main and push)
+
+### Build Jenkinsfile_cd
+- Buat jenkinsfil_cd
+- Buat environment untuk dockerhub dengan mencantumkan nama image dan tag
+- Buat stage (checkout, , build, push image to dockerhub)
+
+### Setup Azure Cloud & Deploy
+- Buat web app service untuk deploy web
+- Buat database untuk web
+- Migrate database
+
+### Setup Azure web app config
+- Buat environment variable untuk web app
+- Konfigurasi webhook untuk dockerhub
+- Masukkan webhook ke dockerhub
+
+### Test Pipeline & Troubleshooting
+- Commit source code tambahan di github melalui visual studio code
+- Melihat apakah pipeline di jenkins sudah jalan ketika terdapat commit dari github
+- Melakukan troubleshoot ketika terdapat error di pipeline
+
+### Testdrive website
+- Dapatkan link dari halaman azure web app services di bagian overview
+- Coba buka di browser
+- Jalankan web apps
+- Apabila error cek log di konsol , kudu atau log web app services dan jenkins untuk troubleshooting dan debugging
+
+### Monitor With Grafana
+- Buat Azure Managed Grafana
+- Buat grafik metric sesuai keinginan
+- Pin ke dashboard
+
+### Links
+- Github Repository "https://github.com/NurGhulam04/fp-pso"
+- Web Apps "https://perpusgul.azurewebsites.net"
+- Documentation "https://its.id/m/DokumentasiPerpusgul"
+- Powerpoint "https://its.id/m/PPTPerpusgul"
 
 ## Quick Start 
 clone the repo
