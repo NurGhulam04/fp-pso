@@ -27,6 +27,8 @@ CRUD Library Book:
 - Menambahkan fitur export ke excel untuk setiap Reports (Date Wished, Monthly Wished, Not Returned)
 
 ## Progress Setup
+Berikut merupakan Arsitektur Pipeline dari Project Perpusgul
+
 <img src="Screenshots/PSO progress.jpg" width="100%" /><br /> <br />
 
 ### Docker Setup
