@@ -1,9 +1,9 @@
 # Ini adalah project pipeline CICD PSO kami, di project ini kami fokus pada otomasi pipeline, tanpa memperhatikan vulnerability dari web app
-```
-ini adalah link dokumentasi project kami:
-```
-## https://docs.google.com/document/d/1VLYckni4Td3mkf9gI0UmQynrrWlxXcG0HOT14ZPQ_jU/edit?usp=sharing
 
+## ini adalah link dokumentasi project kami:
+```
+ https://docs.google.com/document/d/1VLYckni4Td3mkf9gI0UmQynrrWlxXcG0HOT14ZPQ_jU/edit?usp=sharing
+```
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
 
 # Laravel Library Management System
