@@ -27,6 +27,7 @@ CRUD Library Book:
 - Menambahkan fitur export ke excel untuk setiap Reports (Date Wished, Monthly Wished, Not Returned)
 
 ## Progress Setup
+<img src="Screenshots/PSO progress.jpg" width="100%" /><br /> <br />
 
 ### Docker Setup
 - Clone the project repo
