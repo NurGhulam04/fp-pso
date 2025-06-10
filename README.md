@@ -3,7 +3,7 @@
 # Laravel Library Management System
 Aplikasi e-Library merupakan sistem perpustakaan digital yang bertujuan untuk memudahkan pengelolaan buku, pengguna, serta transaksi peminjaman dan pengembalian secara online. Aplikasi ini memungkinkan admin untuk menambahkan, mengedit, dan menghapus data buku, serta memantau stok buku yang tersedia.
 
-## Requirments
+## Requirements
 - php 8.2
 - Docker
 - MySQL
