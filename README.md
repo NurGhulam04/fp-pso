@@ -59,11 +59,30 @@ CRUD Library Book:
 - Buat jenkinsfil_ci
 - Mendefinisikan environment yang digunakan seluruh pipeline (database, docker image, docker tag) 
 - Buat stage (checkout, instal dependencies, test, build, merge main and push)
+    - Stage Checkout
+        Stage ini berfungsi untuk mengambil (clone) kode sumber dari repository GitHub agar dapat digunakan dalam proses selanjutnya
+    - Stage Instal Dependencies
+        Stage Install Dependencies digunakan untuk menginstal semua dependensi yang dibutuhkan oleh aplikasi PHP di dalam container Docker. Pada tahap ini, pipeline menjalankan container berbasis image php:8.3-cli dan memetakan direktori kerja ke folder proyek. Di dalam container, perintah yang dijalankan mencakup update package list, instalasi beberapa library sistem yang dibutuhkan (seperti unzip, git, libzip, libpng, dan libxml2), instalasi ekstensi PHP (zip, gd, dan dom), lalu mengunduh dan menjalankan installer Composer untuk menginstal semua dependensi proyek yang didefinisikan dalam file composer.json. Seluruh proses ini dilakukan secara bersih menggunakan opsi --rm agar container dihapus otomatis setelah selesai.
+    - Stage Build Docker Image
+        Stage Build Docker Image bertugas untuk membangun image Docker dari aplikasi Laravel yang ada di dalam repository. Pada tahap ini, perintah docker build -t laravel-app. dijalankan untuk membuat image baru dengan nama/tag laravel-app menggunakan Dockerfile yang terdapat di direktori saat ini. 
+    - Stage Test
+        Stage Test digunakan untuk menjalankan pengujian otomatis pada aplikasi menggunakan PHPUnit di dalam container Docker. Pada tahap ini, pipeline menjalankan container, memetakan direktori kerja ke dalam container, lalu melakukan instalasi dependensi, seperti libsqlite3-dev dan ekstensi PHP pdo serta pdo_sqlite. Setelah lingkungan testing siap, perintah php vendor/bin/phpunit dijalankan untuk mengeksekusi semua tes di exampleTest.php. File tersebut melakukan pengujian HTTP (feature test) untuk memastikan bahwa berbagai rute utama pada aplikasi e-Library dapat diakses dan memberikan respons status HTTP 200 (berhasil). Rute yang diuji meliputi /dashboard, /authors, /publishers, /books, /reports, /students, dan /book_issue.
+    - Merge to Main and Push
+        Pada Stage ini berguna untuk menggabungkan dari branch update dengan branch main yang kemudian melakukan Push secara otomatis.
+
 
 ### Build Jenkinsfile_cd
 - Buat jenkinsfil_cd
 - Buat environment untuk dockerhub dengan mencantumkan nama image dan tag
-- Buat stage (checkout, , build, push image to dockerhub)
+- Buat stage (Checkout Source, Build Docker Image, Push to DockerHub)
+    - Stage Checkout Source
+        Stage ini digunakan dalam proses Continuous Deployment (CD), di mana pipeline mengambil versi stabil dari aplikasi untuk didistribusikan atau dideploy ke server produksi. Meskipun opsional, stage ini berguna jika proses deployment dilakukan terpisah dari proses build atau testing dan memerlukan pengambilan ulang source code yang sudah bersih dari branch utama.
+    - Stage Build Docker Image
+        Stage ini berfungsi untuk membangun image Docker dari aplikasi Laravel yang ada di direktori saat ini. Pada tahap ini, perintah docker build -t laravel-app . dijalankan untuk membuat image dengan tag laravel-app menggunakan Dockerfile yang tersedia.
+    - Stage Push to DockerHub
+        Stage ini berfungsi untuk mengunggah image Docker yang telah dibangun sebelumnya ke DockerHub. Pada tahap ini, pipeline menggunakan kredensial yang disimpan di Jenkins (dengan credentialsId: 'dockerhub-creds') untuk login ke DockerHub secara aman. Setelah berhasil login, image dengan tag laravel-app diberi tag baru sesuai dengan variabel $DOCKER_IMAGE:$DOCKER_TAG, lalu didorong (push) ke repository DockerHub tujuan. Setelah proses selesai, pipeline melakukan logout dari DockerHub untuk menjaga keamanan kredensial.
+
+
 
 ### Setup Azure Cloud & Deploy
 - Buat web app service untuk deploy web
