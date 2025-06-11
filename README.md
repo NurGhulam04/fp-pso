@@ -113,6 +113,7 @@ Berikut merupakan Arsitektur Pipeline dari Project Perpusgul
 - Pin ke dashboard
 
 ### Links
+Dokumentasi mengenai step pengerjaan dan eror yang ditemukan dapat diakses di link Dokumen berikut :
 - Github Repository "https://github.com/NurGhulam04/fp-pso"
 - Web Apps "https://perpusgul.azurewebsites.net"
 - Documentation "https://its.id/m/DokumentasiPerpusgul"
