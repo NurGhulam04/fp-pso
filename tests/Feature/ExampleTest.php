@@ -74,8 +74,6 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
     }
 
-
-
     /**
      * Test the /book_issue route.
      *
