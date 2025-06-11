@@ -75,7 +75,7 @@ class ExampleTest extends TestCase
     }
 
     /**
-     * Test the /book_issue route.
+     * Test the /book_issue route
      *
      * @return void
      */
