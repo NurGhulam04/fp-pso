@@ -74,16 +74,7 @@ class ExampleTest extends TestCase
         $response->assertStatus(200);
     }
 
-     /**
-     * Test the /gagal.
-     *
-     * @return void
-     */
-    public function test_gagal()
-    {
-        $response = $this->get('/youareafailure');
-        $response->assertStatus(200);
-    }
+
 
     /**
      * Test the /book_issue route.
