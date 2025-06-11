@@ -40,11 +40,7 @@ pipeline {
             }
         }
 
-        // stage('Test') {
-        //     steps {
-        //         sh'./vendor/bin/phpunit'
-        //     }
-        // }
+
         stage('Test') {
             steps {
                 sh '''
@@ -59,23 +55,8 @@ pipeline {
         }
 
 
-
-        // stage('Push to DockerHub') {
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKERHUB_USER', passwordVariable: 'DOCKERHUB_PASS')]) {
-        //             sh '''
-        //                 echo "$DOCKERHUB_PASS" | docker login -u "$DOCKERHUB_USER" --password-stdin
-        //                 docker tag laravel-app $DOCKER_IMAGE:$DOCKER_TAG
-        //                 docker push $DOCKER_IMAGE:$DOCKER_TAG
-        //                 docker logout
-        //             '''
-        //         }
-        //     }
-        // }
         stage('Merge to Main and Push') {
             steps {
-                // Menggunakan credentials GitHub yang sudah disimpan di Jenkins
-                // Ganti 'github-repo-creds' dengan ID credentials GitHub Anda
                 withCredentials([usernamePassword(credentialsId: 'github-token', usernameVariable: 'GITHUB_USER', passwordVariable: 'GITHUB_TOKEN')]) {
                     sh '''
                         set -e # Keluar segera jika ada perintah yang gagal
@@ -83,7 +64,6 @@ pipeline {
 
                         echo "--- Memulai Stage Merge to Main and Push ---"
                         echo "DEBUG: Nilai GITHUB_USER dari credentials: [$GITHUB_USER]"
-                        # Jangan echo GITHUB_TOKEN karena itu sensitif
 
                         # Validasi variabel yang dibutuhkan dari credentials
                         if [ -z "$GITHUB_USER" ]; then
@@ -95,23 +75,20 @@ pipeline {
                             exit 1
                         fi
 
-                        # Konfigurasi identitas Git (sesuai log Anda)
+                        # Konfigurasi identitas Git
                         git config --global user.email "ghulammusthafa04@gmail.com"
                         git config --global user.name "NurGhulam04"
 
                         echo "Fetching dari origin..."
                         git fetch origin --prune --tags
 
-                        echo "Checkout branch target: main (dari origin/main)"
-                        # LANGSUNG MENGGUNAKAN NAMA BRANCH "main"
+                        echo "Checkout branch target: main"
                         git checkout -B "main" "origin/main"
 
-                        echo "Merge branch source: origin/update ke main"
-                        # LANGSUNG MENGGUNAKAN NAMA BRANCH "update"
+                        echo "Merge branch source: update ke main"
                         git merge "origin/update" -m "Jenkins: Auto-merge branch 'update' into 'main' after successful Docker push"
 
                         echo "Push branch main ke origin"
-                        # LANGSUNG MENGGUNAKAN NAMA BRANCH "main"
                         git push "https://$GITHUB_USER:$GITHUB_TOKEN@github.com/NurGhulam04/fp-pso.git" "main"
 
                         echo "--- Stage Merge to Main and Push Selesai ---"
