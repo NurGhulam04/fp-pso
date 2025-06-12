@@ -69,7 +69,7 @@
                 <div class="col-md-8">
                     <div class="card border-0">
                         <div class="card-body text-center">
-                            <h3 class="admin-heading">Popular Books</h3>
+                            <h3 class="admin-heading">Most Popular Books</h3>
                             @if($most_issued_books->count() > 0)
                                 <div class="mt-4">
                                     @foreach($most_issued_books as $index => $book)
