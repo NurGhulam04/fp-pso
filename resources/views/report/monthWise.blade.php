@@ -16,7 +16,7 @@
                         </div>
                         <input type="submit" class="btn btn-danger" name="search_month" value="Search">
                     </form>
-                    {{-- @if ($books && count($books) > 0)
+                    @if ($books && count($books) > 0)
                     <div class="text-center mb-4">
                         <form action="{{ route('reports.month_wise_export') }}" method="POST">
                             @csrf
@@ -25,7 +25,7 @@
                             <button type="submit" class="btn btn-success">Export to Excel</button>
                         </form>
                     </div>
-                    @endif --}}
+                    @endif
                 </div>
             </div>
             @if ($books)

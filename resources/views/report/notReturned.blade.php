@@ -7,14 +7,14 @@
                     <h2 class="admin-heading text-center">Not Returned Books</h2>
                 </div>
             </div>
-            {{-- @if ($books && count($books) > 0)
+            @if ($books && count($books) > 0)
             <div class="text-center mb-4">
                 <form action="{{ route('reports.not_returned_export') }}" method="POST">
                     @csrf
                     <button type="submit" class="btn btn-success">Export to Excel</button>
                 </form>
             </div>
-            @endif --}}
+            @endif
             @if ($books)
                 <div class="row">
                     <div class="col-md-12">
