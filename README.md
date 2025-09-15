@@ -178,7 +178,3 @@ https://docs.google.com/document/d/1VLYckni4Td3mkf9gI0UmQynrrWlxXcG0HOT14ZPQ_jU/
 <img src="Screenshots/lms (12).png" width="100%" /><br /> <br />
 <img src="Screenshots/lms (13).png" width="100%" /><br /> <br />
 
-Watch demo at tauseedzaman youtube channel https://youtube.com/channel/UCnJYN9jTfEnumvJUw4rhh9A
-
-
-Make sure to leave a start ✨✨
